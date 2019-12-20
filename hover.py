@@ -118,8 +118,7 @@ def run_sequence(scf, position):
                                             position[1],
                                             position[2],
                                             position[3])
-        time.sleep(0.01)
-        #position = (position[0], position[1], position[2], position[3]+10)
+        time.sleep(0.1)
 
     for i in range(30):
         cf.commander.send_position_setpoint(position[0], position[1], 0, 0.0)
