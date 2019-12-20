@@ -18,7 +18,6 @@ from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.syncLogger import SyncLogger
 import pandas as pd
 
-f = open("box-swarm-log.csv", 'w')
 
 value_dict = {}
 
@@ -185,8 +184,6 @@ def run_shared_sequence(scf):
 
     commander.go_to(0, 0, 0, 0, flight_time, relative=True)
     time.sleep(flight_time)
-
-
 
     commander.land(0.0, 2.0)
     time.sleep(2)

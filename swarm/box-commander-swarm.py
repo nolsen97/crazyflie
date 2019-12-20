@@ -18,11 +18,7 @@ from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.syncLogger import SyncLogger
 import pandas as pd
 
-f = open("box-swarm-log.csv", 'w')
-
-df = pd.DataFrame()
 value_dict = {}
-
 
 drone1_pos = (0, 0, 0)
 drone2_pos = (0, 0, 0)
@@ -213,11 +209,6 @@ uris = {
     # Add more URIs if you want more copters in the swarm
 }
 
-def print_df():
-    for i in value_dict:
-        df[i] = pd.Series(value_dict[i])
-    df.to_csv(path_or_buf=f)
-
 if __name__ == '__main__':
     cflib.crtp.init_drivers(enable_debug_driver=False)
     factory = CachedCfFactory(rw_cache='./cache')
@@ -227,4 +218,3 @@ if __name__ == '__main__':
         time.sleep(5)
         swarm.parallel_safe(start_position_printing)
         swarm.parallel_safe(run_shared_sequence)
-        # print_df()

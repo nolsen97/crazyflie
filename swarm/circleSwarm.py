@@ -23,7 +23,6 @@ from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.syncLogger import SyncLogger
 import pandas as pd
 
-# f = open("circle-swarm-log3.csv", 'w')
 
 drone1_pos = (0, 0, 0)
 drone2_pos = (0, 0, 0)
