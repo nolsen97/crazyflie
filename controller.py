@@ -151,7 +151,7 @@ class Hover:
             stdscr.refresh()
             # Update the position.
             self._cf.commander.send_setpoint(roll, pitch, yaw, thrust)
-            time.sleep(0.01)
+            time.sleep(0.1)
 
             alt_error = targetAlt - (sum(self._status['alt'])/5)
             end_time = time.time()
