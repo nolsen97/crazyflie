@@ -78,7 +78,6 @@ def run_sequence(cf):
     duration = 2.0
     commander.takeoff(1.0, duration)
     time.sleep(3.0)
-    #relative = True
     #       x      y    z   yaw
     pos = (1.90, 2.85, 1.0, 0.0)
     commander.go_to(pos[0], pos[1], pos[2], pos[3], duration)
