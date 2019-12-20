@@ -136,7 +136,7 @@ class Hover:
         while True:
             self._cf.commander.send_setpoint(roll, pitch, yaw, thrust)
             time.sleep(0.1)
-            currentAlt = sum(self._status['alt'])/5
+            currentAlt = sum(self._status['alt'])/(len(self._status['alt'])
             print(currentAlt)
             if (currentAlt < targetAlt and thrust < max_thrust):
                 thrust += thrust_step
