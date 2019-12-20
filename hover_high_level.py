@@ -92,7 +92,6 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         cf = scf.cf
-        trajectory_id = 1
 
         activate_high_level_commander(cf)
         reset_estimator(cf)
