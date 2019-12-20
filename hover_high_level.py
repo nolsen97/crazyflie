@@ -1,8 +1,4 @@
 """
-Simple example that connects to one crazyflie (check the address at the top
-and update it to your crazyflie address) and uses the high level commander
-to send setpoints and trajectory to fly a figure 8.
-
 This example is intended to work with any positioning system (including LPS).
 It aims at documenting how to set the Crazyflie in position control mode
 and how to send setpoints using the high level commander.
@@ -79,12 +75,15 @@ def activate_mellinger_controller(cf):
 
 def run_sequence(cf):
     commander = cf.high_level_commander
-    commander.takeoff(1.0, 2.0)
+    duration = 2.0
+    commander.takeoff(1.0, duration)
     time.sleep(3.0)
     #relative = True
-    commander.go_to(1.90, 2.85, 1.0, 0, 2.0)
+    #       x      y    z   yaw
+    pos = (1.90, 2.85, 1.0, 0.0)
+    commander.go_to(pos[0], pos[1], pos[2], pos[3], duration)
     time.sleep(0.1)
-    commander.land(0.0, 2.0)
+    commander.land(0.0, duration)
     time.sleep(2)
     commander.stop()
 
@@ -97,8 +96,5 @@ if __name__ == '__main__':
         trajectory_id = 1
 
         activate_high_level_commander(cf)
-        # activate_mellinger_controller(cf)
-        #duration = upload_trajectory(cf, trajectory_id, figure8)
-        #print('The sequence is {:.1f} seconds long'.format(duration))
         reset_estimator(cf)
         run_sequence(cf)

@@ -14,9 +14,8 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
-from log import *
 
-f = open("logging2.csv", 'w')
+f = open("hover_data.csv", 'w')
 
 df = pd.DataFrame()
 value_dict = {}
@@ -29,10 +28,9 @@ uri = 'radio://0/80/2M/E7E7E7E7E7'
 
 # Change the sequence according to your setup
 #             x    y    z  YAW
-#position = (0.5, 0.5, 0.5, 0)
 position = (1.20, 2.55, 1.0, 0.0)
 
-        
+
 def wait_for_position_estimator(scf):
     print('Waiting for estimator to find position...')
 
@@ -84,11 +82,6 @@ def reset_estimator(scf):
 
 
 def position_callback(timestamp, data, logconf):
-    # x = data['kalman.stateX']
-    # y = data['kalman.stateY']
-    # z = data['kalman.stateZ']
-    # print('x:{}, y:{}, z:{}'.format(x, y, z))
-    # print(data)
     for i in data:
         if i in value_dict:
             value_dict[i].append(data[i])
@@ -96,7 +89,6 @@ def position_callback(timestamp, data, logconf):
             value_dict[i] = []
 
 def start_position_printing(scf):
-    # print("here")
     log_conf = LogConfig(name='Position', period_in_ms=10)
     log_conf.add_variable('kalman.stateX', 'float')
     log_conf.add_variable('kalman.stateY', 'float')
@@ -114,14 +106,13 @@ def start_position_printing(scf):
     log_stab.data_received_cb.add_callback(position_callback)
     log_conf.start()
     log_stab.start()
-    # LoggingExample(uri)
 
 
 def run_sequence(scf, position):
     cf = scf.cf
     end = time.time() + 3
     print('Setting position {}'.format(position))
-    
+
     while time.time() < end:
         cf.commander.send_position_setpoint(position[0],
                                             position[1],
@@ -133,7 +124,7 @@ def run_sequence(scf, position):
     for i in range(30):
         cf.commander.send_position_setpoint(position[0], position[1], 0, 0.0)
         time.sleep(0.1)
-    
+
     cf.commander.send_stop_setpoint()
     # Make sure that the last packet leaves before the link is closed
     # since the message queue is not flushed before closing
@@ -146,12 +137,8 @@ if __name__ == '__main__':
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         reset_estimator(scf)
         start_position_printing(scf)
-
-        # log_vars(scf)
         run_sequence(scf, position)
-        # print_df()
 
     for i in value_dict:
-        # print(value_dict[i])
         df[i] = pd.Series(value_dict[i])
     df.to_csv(path_or_buf=f)

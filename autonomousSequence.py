@@ -1,34 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-#     ||          ____  _ __
-#  +------+      / __ )(_) /_______________ _____  ___
-#  | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
-#  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
-#   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
-#
-#  Copyright (C) 2016 Bitcraze AB
-#
-#  Crazyflie Nano Quadcopter Client
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA  02110-1301, USA.
 """
 Simple example that connects to one crazyflie (check the address at the top
 and update it to your crazyflie address) and send a sequence of setpoints,
 one every 5 seconds.
 
-This example is intended to work with the Loco Positioning System in TWR TOA
+This example is intended to work with the Loco Positioning System in TWR and TDOA
 mode. It aims at documenting how to set the Crazyflie in position control mode
 and how to send setpoints.
 """
@@ -44,10 +19,10 @@ from cflib.crazyflie.syncLogger import SyncLogger
 uri = 'radio://0/80/2M/E7E7E7E702'
 
 # Change the sequence according to your setup
-#             x    y    z  YAW
+#       x    y    z  YAW
 sequence = [
     (1.70, 2.90, 1.0, 0.0),
-    (2.20, 2.90, 1.0, 0),
+    (2.20, 2.90, 1.0, 0.0),
     (2.20, 3.40, 1.0, 0.0),
     (1.70, 3.40, 1.0, 0.0),
     (1.70, 2.90, 1.0, 0.0),
@@ -133,9 +108,10 @@ def run_sequence(scf, sequence):
                                                 position[2],
                                                 position[3])
             time.sleep(0.1)
-    
+
+    position = sequence[0]
     for i in range(30):
-        cf.commander.send_position_setpoint(1.70, 2.90, 0.65, 0.0)
+        cf.commander.send_position_setpoint(position[0], position[1], 0, position[3])
         time.sleep(0.1)
 
     cf.commander.send_stop_setpoint()
@@ -149,5 +125,5 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         reset_estimator(scf)
-        # start_position_printing(scf)
+        start_position_printing(scf)
         run_sequence(scf, sequence)

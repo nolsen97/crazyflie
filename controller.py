@@ -118,14 +118,15 @@ class Hover:
         targetAlt = 254.0
         target_pitch, target_roll, = 0, 0
 
-
-        #run_time = 10
-
         thrust = 20000
         max_thrust = 40000
+        thrust_step = 500
         roll = 0
         pitch = 0
         yaw = 0
+
+        P = 25.0
+        D = 0.5
 
         # Unlock startup thrust protection.
         self._cf.commander.send_setpoint(0, 0, 0, 0)
@@ -134,17 +135,15 @@ class Hover:
         self._cf.param.set_value("flightmode.althold","True")
         while True:
             self._cf.commander.send_setpoint(roll, pitch, yaw, thrust)
-            time.sleep(0.01)
+            time.sleep(0.1)
             currentAlt = sum(self._status['alt'])/5
             print(currentAlt)
             if (currentAlt < targetAlt and thrust < max_thrust):
-                thrust += 500
+                thrust += thrust_step
             if currentAlt >= targetAlt:
-                print("takeoff complete")
-                #thrust = 32568
+                print("Takeoff Complete")
                 break
 
-        #while time.time() <= start_time + run_time:
         start_time = time.time()
         key = ''
         while key != ord('q'):
@@ -156,7 +155,7 @@ class Hover:
 
             alt_error = targetAlt - (sum(self._status['alt'])/5)
             end_time = time.time()
-            unmapped_thrust = alt_error*25.0 + (alt_error/(end_time-start_time))*0.5
+            unmapped_thrust = alt_error*P + (alt_error/(end_time-start_time))*D
             start_time = time.time()
             if unmapped_thrust > 100:
                 unmapped_thrust = 100
@@ -164,8 +163,6 @@ class Hover:
                 unmapped_thrust = -100
             thrust = int(ardu_map(unmapped_thrust, -100, 100, 10001, 60000))
 
-            #pitch_error = target_pitch - self._status['pitch']
-            #pitch = pitch_error
             if key == curses.KEY_UP:
                 pitch += 0.1
             elif key == curses.KEY_DOWN:
@@ -177,13 +174,10 @@ class Hover:
             else:
                 pitch = pitch
                 roll = roll
-            #roll_error = target_roll - self._status['roll']
-            #roll = roll_error
 
             yaw = 0
 
             f.write(str(sum(self._status['alt'])/5) + "\n")
-            print(str(sum(self._status['alt'])/5) + "\n")  # thrust, pitch, roll, yaw)
 
         curses.endwin()
         self._cf.commander.send_setpoint(0, 0, 0, 0)
