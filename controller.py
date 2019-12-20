@@ -119,7 +119,7 @@ class Hover:
         target_pitch, target_roll, = 0, 0
 
         thrust = 20000
-        max_thrust = 40000
+        max_thrust = 60000
         thrust_step = 500
         roll = 0
         pitch = 0
@@ -137,7 +137,6 @@ class Hover:
             self._cf.commander.send_setpoint(roll, pitch, yaw, thrust)
             time.sleep(0.1)
             currentAlt = sum(self._status['alt'])/(len(self._status['alt'])
-            print(currentAlt)
             if (currentAlt < targetAlt and thrust < max_thrust):
                 thrust += thrust_step
             if currentAlt >= targetAlt:
@@ -153,7 +152,7 @@ class Hover:
             self._cf.commander.send_setpoint(roll, pitch, yaw, thrust)
             time.sleep(0.1)
 
-            alt_error = targetAlt - (sum(self._status['alt'])/5)
+            alt_error = targetAlt - (sum(self._status['alt'])/(len(self._status['alt']))
             end_time = time.time()
             unmapped_thrust = alt_error*P + (alt_error/(end_time-start_time))*D
             start_time = time.time()
@@ -177,7 +176,7 @@ class Hover:
 
             yaw = 0
 
-            f.write(str(sum(self._status['alt'])/5) + "\n")
+            f.write(str(sum(self._status['alt'])/(len(self._status['alt'])) + "\n")
 
         curses.endwin()
         self._cf.commander.send_setpoint(0, 0, 0, 0)
