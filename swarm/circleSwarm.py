@@ -21,20 +21,7 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.swarm import CachedCfFactory
 from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.syncLogger import SyncLogger
-import pandas as pd
 
-
-drone1_pos = (0, 0, 0)
-drone2_pos = (0, 0, 0)
-drone1_stab = (0, 0, 0, 0)
-drone2_stab = (0, 0, 0, 0)
-
-
-"""
-Run 1: d = 1.0 URI0=01 URI1=E7
-Run 2: d = 1.0 URI0=E7 URI1=01
-Run 2: d = 0.5 URI0=E7 URI1=01
-"""
 
 value_dict = {}
 
@@ -59,77 +46,9 @@ params = {
     URI1: [params1],
 }
 
-def check_loc_dist(cf):
-    global drone1_pos
-    global drone2_pos
-
-    if (drone1_pos != (0,0,0) and drone2_pos != (0,0,0)):
-        total_dis = math.sqrt((drone1_pos[0]-drone2_pos[0])**2 + (drone1_pos[1]-drone2_pos[1])**2 + (drone1_pos[2]-drone2_pos[2])**2)
-        total_diff = 0.1 < total_dis < 1.8
-        x_diff = 0 < abs(drone1_pos[0] - drone2_pos[0]) <= 1.5
-        y_diff = 0 < abs(drone1_pos[1] - drone2_pos[1]) <= 1.8
-        z_diff = 0 < abs(drone1_pos[2] - drone2_pos[2]) <= 0.7435006574
-
-        if (total_diff and x_diff and y_diff and z_diff):
-            pass
-
-        else:
-            print("ABORT -- Distance Error")
-            print(total_dis, x_diff, y_diff, z_diff)
-            cf.commander.send_stop_setpoint()
-            cf.close_link()
-
-
-def check_stab(cf):
-    global drone1_stab
-    global drone2_stab
-
-    if (drone1_stab != (0,0,0,0) and drone2_stab != (0,0,0,0)):
-
-        roll_diff = 0 < abs(drone1_stab[0] - drone2_stab[0]) <= 9.426493884
-        pitch_diff = 0 < abs(drone1_stab[1] - drone2_stab[1])<= 30.9468110715
-        yaw_diff = 0 < abs(drone1_stab[2] - drone2_stab[2]) <= 357.4603576
-
-        if (roll_diff and pitch_diff and yaw_diff):
-            pass
-
-        else:
-            print("ABORT -- Stabilizer Error")
-            print(roll_diff, pitch_diff, yaw_diff)
-            cf.commander.send_stop_setpoint()
-            cf.close_link()
-
 
 def position_callback(timestamp, data, logconf):
-
-    global drone1_stab
-    global drone2_stab
-    global drone1_pos
-    global drone2_pos
-
-    if 'kalman.stateX' in data:
-        if logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E702":
-            drone1_pos = (data['kalman.stateX'], data['kalman.stateY'], data['kalman.stateZ'])
-
-        elif logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E7E7":
-            drone2_pos = (data['kalman.stateX'], data['kalman.stateY'], data['kalman.stateZ'])
-
-        else:
-            pass
-
-    if 'stabilizer.roll' in data:
-        if logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E702":
-            drone1_stab = (data['stabilizer.roll'], data['stabilizer.pitch'], data['stabilizer.yaw'], data['stabilizer.thrust'])
-
-        elif logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E7E7":
-            drone2_stab = (data['stabilizer.roll'], data['stabilizer.pitch'], data['stabilizer.yaw'], data['stabilizer.thrust'])
-
-        else:
-            pass
-
-    check_loc_dist(logconf.cf)
-    check_stab(logconf.cf)
-
+    print(data)
 
 def start_position_printing(scf):
     log_blocks = {  'pos':['kalman.stateX', 'kalman.stateY', 'kalman.stateZ'],

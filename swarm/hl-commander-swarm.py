@@ -16,17 +16,8 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.swarm import CachedCfFactory
 from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.syncLogger import SyncLogger
-import pandas as pd
-
 
 value_dict = {}
-
-
-drone1_pos = (0, 0, 0)
-drone2_pos = (0, 0, 0)
-drone1_stab = (0, 0, 0, 0)
-drone2_stab = (0, 0, 0, 0)
-
 
 def wait_for_position_estimator(scf):
     print('Waiting for estimator to find position...')
@@ -82,80 +73,8 @@ def activate_high_level_commander(scf):
     scf.cf.param.set_value('commander.enHighLevel', '1')
 
 
-def check_loc_dist(cf):
-    global drone1_pos
-    global drone2_pos
-
-    if (drone1_pos != (0,0,0) and drone2_pos != (0,0,0)):
-        total_dis = math.sqrt((drone1_pos[0]-drone2_pos[0])**2 + (drone1_pos[1]-drone2_pos[1])**2 + (drone1_pos[2]-drone2_pos[2])**2)
-        total_diff = 0.3256810903 < total_dis < 1.6746508871
-        x_diff = 0 < abs(drone1_pos[0] - drone2_pos[0]) <= 0.7839092613
-        y_diff = 0.325095177 < abs(drone1_pos[1] - drone2_pos[1]) <= 1.392973184
-        z_diff = 0 < abs(drone1_pos[2] - drone2_pos[2]) <= 1.150698460
-
-        if (total_diff and x_diff and y_diff and z_diff):
-            pass
-
-        else:
-            print("ABORT -- Distance Error")
-            print(total_diff, x_diff, y_diff, z_diff)
-
-            commander = cf.high_level_commander
-            commander.land(0.0, 2.0)
-            time.sleep(2)
-
-            commander.stop()
-
-def check_stab(cf):
-    global drone1_stab
-    global drone2_stab
-
-    if (drone1_stab != (0,0,0,0) and drone2_stab != (0,0,0,0)):
-
-        roll_diff = 0 < abs(drone1_stab[0] - drone2_stab[0]) <= 21.520408275
-        pitch_diff = 0 < abs(drone1_stab[1] - drone2_stab[1])<= 20.936917778
-        yaw_diff = 0 < abs(drone1_stab[2] - drone2_stab[2]) <= 42.75707817
-
-        if (roll_diff and pitch_diff and yaw_diff):
-            pass
-
-        else:
-            print("ABORT -- Stabilizer Error")
-            print(roll_diff, pitch_diff, yaw_diff)
-            commander = cf.high_level_commander
-            commander.land(0.0, 2.0)
-            time.sleep(2)
-
-            commander.stop()
-
 def position_callback(timestamp, data, logconf):
-
-    global drone1_pos
-    global drone2_pos
-    global drone1_stab
-    global drone2_stab
-    if 'kalman.stateX' in data:
-        if logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E702":
-            drone1_pos = (data['kalman.stateX'], data['kalman.stateY'], data['kalman.stateZ'])
-
-        elif logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E7E7":
-            drone2_pos = (data['kalman.stateX'], data['kalman.stateY'], data['kalman.stateZ'])
-
-        else:
-            pass
-
-    if 'stabilizer.roll' in data:
-        if logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E702":
-            drone1_stab = (data['stabilizer.roll'], data['stabilizer.pitch'], data['stabilizer.yaw'], data['stabilizer.thrust'])
-
-        elif logconf.cf.link_uri == "radio://0/80/2M/E7E7E7E7E7":
-            drone2_stab = (data['stabilizer.roll'], data['stabilizer.pitch'], data['stabilizer.yaw'], data['stabilizer.thrust'])
-
-        else:
-            pass
-
-    check_loc_dist(logconf.cf)
-    check_stab(logconf.cf)
+    print(data)
 
 def start_position_printing(scf):
     log_blocks = {  'pos':['kalman.stateX', 'kalman.stateY', 'kalman.stateZ'],
@@ -194,7 +113,7 @@ def run_shared_sequence(scf):
 uris = {
     'radio://0/80/2M/E7E7E7E7E7',
     'radio://0/80/2M/E7E7E7E702',
-    # 'radio://0/80/2M/E7E7E7E702',
+    'radio://0/80/2M/E7E7E7E701',
     # Add more URIs if you want more copters in the swarm
 }
 
